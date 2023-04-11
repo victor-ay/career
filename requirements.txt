@@ -1,0 +1,9 @@
+psycopg2
+django
+requests
+djangorestframework
+djangorestframework-simplejwt
+django-cors-headers
+django-countries
+django-money
+django-filter

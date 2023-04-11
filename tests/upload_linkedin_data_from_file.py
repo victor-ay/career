@@ -76,12 +76,14 @@ def LinkedInDictToDB_jobs(jobsDict: dict):
         j_source_id = job['job_id']
         j_is_active = True
 
-        if 'remote' in job['job_location'].lower() or 'virtual' in job['job_location'].lower():
-            j_employment_type = 'Remote'
-        elif 'hybrid' in job['job_location'].lower():
-            j_employment_type = 'Hybrid'
-        else:
-            j_employment_type = 'On-site'
+        # if 'remote' in job['job_location'].lower() or 'virtual' in job['job_location'].lower():
+        #     j_employment_type = 'Remote'
+        # elif 'hybrid' in job['job_location'].lower():
+        #     j_employment_type = 'Hybrid'
+        # else:
+        #     j_employment_type = 'On-site'
+
+        j_employment_type = job["job_employment_type"]
 
         j_employment_percent = job['employment_percent']
         j_level = job['job_level']
@@ -98,6 +100,7 @@ def LinkedInDictToDB_jobs(jobsDict: dict):
         j_title = job['job_title']
         j_max_payment = job['max_payment']
         j_min_payment = job['min_payment']
+        j_level = job["job_level"]
 
         # if job['max_payment']:
         #     j_max_payment_amount = Decimal(job['max_payment'])
@@ -143,6 +146,7 @@ def LinkedInDictToDB_jobs(jobsDict: dict):
             employment_type = j_employment_type,
             employment_percent = j_employment_percent,
             job_type = j_type,
+            job_level = j_level,
             payment_period = j_payment_period,
             title = j_title,
             description = j_description,

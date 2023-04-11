@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
-from jobs_app.models import Contact
+from jobs_app.models import Language
 
 
-class ContactsSerializer(serializers.ModelSerializer):
+class LanguagesSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Contact
+        model = Language
         fields = '__all__'

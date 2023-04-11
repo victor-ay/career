@@ -1,9 +1,14 @@
 from rest_framework.routers import DefaultRouter
 
-from jobs_app.views.companies import CompaniesViewSet
+from jobs_app.views.favorite_jobs import FavoriteJobsViewSet
+
 
 router = DefaultRouter()
-router.register('', CompaniesViewSet)
+
+
+
+
+router.register('', FavoriteJobsViewSet)
 
 urlpatterns = []
 

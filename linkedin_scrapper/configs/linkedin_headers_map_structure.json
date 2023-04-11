@@ -1,6 +1,10 @@
 // Mapping headers settings per LinkedIn profile
 // Key: Person's LinkedIn profile
-// Value {name: John Doe , header_file: 'linkedin_scrapper/configs/linkedin_headers.json'}
+// Value {name: John Doe , header_file: 'linkedin_scrapper/configs/linkedin_headers_0.json'}
 {
-  "https://www.linkedin.com/in/dan-costner-1884a0206/" : ""
+  "https://www.linkedin.com/in/some-name" :
+  {
+    "name": "Some Name",
+    "headers_json" : "linkedin_scrapper/configs/headers_files/linkedin_headers_XXX.json"
+  }
 }

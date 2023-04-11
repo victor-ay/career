@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
-from jobs_app.models import HardSkillAbility
+from jobs_app.models import SoftSkillAbility
 
 
-class HardSkillAbilitiesSerializer(serializers.ModelSerializer):
+class SoftSkillAbilitiesSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = HardSkillAbility
+        model = SoftSkillAbility
         fields = '__all__'

@@ -11,7 +11,7 @@ import http.cookiejar, urllib.request
 
 import requests
 
-from linkedin_scrapper.LinkedIn_Header_Coockie_handler import LinkedInHeaderHandler
+from linkedin_scrapper.LinkedInHeaderCoockieHandler import LinkedInHeaderHandler
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
@@ -126,7 +126,7 @@ url = "https://www.linkedin.com/voyager/api/graphql?includeWebMetadata=true&vari
 # (HIDDEN_GEM,IN_NETWORK,SCHOOL_RECRUIT,COMPANY_RECRUIT,SALARY,JOB_SEEKER_QUALIFIED,PRE_SCREENING_QUESTIONS,SKILL_ASSESSMENTS,ACTIVELY_HIRING_COMPANY,TOP_APPLICANT)
 
 
-class LinkedInJobsScraping():
+class LinkedInJobsScraper():
 
     def __init__(self, keywords: [str],
                  location:str,
@@ -150,6 +150,7 @@ class LinkedInJobsScraping():
             self._keywords_ids_info[keyword]['tot_jobs_num'] = None
             self._keywords_ids_info[keyword]['initial_link'] = None
             self._linkedin_header_file = linkedin_header_file
+
             # self._headerHandler = LinkedInHeaderHandler(header_file_name='configs/headers_files/linkedin_headers_0.json')
             self._headerHandler = LinkedInHeaderHandler(
                 header_file_name=self._linkedin_header_file)
@@ -509,7 +510,7 @@ if __name__ == '__main__':
     ]
 
 
-    linkedin_job_tasker = LinkedInJobsScraping(
+    linkedin_job_tasker = LinkedInJobsScraper(
         jobs_title_search,
         location='israel',
         timePostedRange='day',

@@ -1,5 +1,6 @@
 import json
 import re
+import time
 from pprint import pprint
 
 
@@ -24,7 +25,8 @@ class LinkedInJobsParser():
 
     @staticmethod
     def _format_LinkedIn_job_description(format_list, description: str) -> str:
-        descr_list = list(description)
+        d= description.strip()
+        descr_list = list(d)
         paragraph_collector = 0
 
         for i in range(len(format_list) - 1):
@@ -34,12 +36,15 @@ class LinkedInJobsParser():
             # format_end = format_list[i]['start']+format_list[i]['length']
 
             if format_style == 'PARAGRAPH':
-                paragraph_collector = paragraph_collector + format_length
+                # paragraph_collector = paragraph_collector + format_length
                 descr_list.insert(paragraph_collector + format_start, "\n")
+                paragraph_collector = paragraph_collector + 1
 
             if format_style == 'LIST_ITEM':
-                descr_list.insert(paragraph_collector + format_start, "\n\t")
-                paragraph_collector = paragraph_collector + 1
+                # descr_list.insert(paragraph_collector + format_start, "\n\t\u2B24")
+                if descr_list[paragraph_collector + format_start] != "\n":
+                    descr_list.insert(paragraph_collector + format_start, "\n\t•")
+                    paragraph_collector = paragraph_collector + 1
 
         return ''.join(descr_list)
 
@@ -54,7 +59,13 @@ class LinkedInJobsParser():
         if value:
             self._jobs_id_dict[job_id][key]=value
         else:
+            # if key == 'logo_100_px':
+            #     print("key == 'logo_100_px'")
             self._jobs_id_dict[job_id][key] = default
+
+    def _put_all_fields_none(self, job_id:str, fields):
+        for field in fields:
+            self._jobs_id_dict[job_id][field] = None
 
     def parse(self):
         self._initiate_dict_of_jobs()
@@ -66,9 +77,22 @@ class LinkedInJobsParser():
 
                 job_num = self._get_first_number_from_string(entityUrn_str)
 
-                if len(job_num)>3:
+                if len(job_num)>4:
+
+
+
 
                     if "navigationBarSubtitle" in keys:
+
+                        fields = [
+                             'company_id', 'company_industry','company_linkedin_url',
+                            'company_name', 'company_name', 'company_size_min','employment_percent', 'job_Salary_type_level',
+                             'job_id', 'job_level', 'job_location', 'job_title', 'max_payment',
+                            'min_max_payment_currency', 'min_payment', 'payment_period', 'posted_epoch'
+                        ]
+                        self._put_all_fields_none(job_id=job_num, fields=fields)
+
+
                         self._put_description_field_or_none(
                             job_id=job_num,
                             key="job_id",
@@ -91,10 +115,31 @@ class LinkedInJobsParser():
                             key="posted_epoch",
                             value=short_include['primaryDescription']['attributesV2'][3]['detailDataUnion']['epoch']['epochAt']
                         )
+
+                        job_location_str = short_include["navigationBarSubtitle"].split("·")[1].strip()
+
+                        if 'remote' in job_location_str.lower() or 'virtual' in job_location_str.lower():
+                            job_employment_type = 'Remote'
+                        elif 'hybrid' in job_location_str.lower():
+                            job_employment_type = 'Hybrid'
+                        else:
+                            job_employment_type = 'On-site'
+
+                        job_location_str = job_location_str.replace('(Remote)','')
+                        job_location_str = job_location_str.replace('(On-site)', '')
+                        job_location_str = job_location_str.replace('(Hybrid)','')
+                        job_location_str = job_location_str.strip()
+
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="job_employment_type",
+                            value=job_employment_type
+                        )
+
                         self._put_description_field_or_none(
                             job_id=job_num,
                             key="job_location",
-                            value=short_include["navigationBarSubtitle"].split("·")[1].strip()
+                            value=job_location_str
                         )
 
                         self._put_description_field_or_none(
@@ -105,28 +150,167 @@ class LinkedInJobsParser():
 
 
                         type_of_job_list = short_include["jobInsightsV2"][0]['insightViewModel']['text']['text'].split("·")
-                        if len(type_of_job_list)>0:
-                            self._put_description_field_or_none(
-                                job_id=job_num,
-                                key="job_type",
-                                value=type_of_job_list[0].strip()
-                            )
-                        if len(type_of_job_list)>1:
-                            self._put_description_field_or_none(
-                                job_id=job_num,
-                                key="job_level",
-                                value=type_of_job_list[1].strip()
-                            )
+                        # if len(type_of_job_list)>0:
+                        #     self._put_description_field_or_none(
+                        #         job_id=job_num,
+                        #         key="job_type",
+                        #         value=type_of_job_list[0].strip()
+                        #     )
+                        # if len(type_of_job_list)>1:
+                        #     self._put_description_field_or_none(
+                        #         job_id=job_num,
+                        #         key="job_level",
+                        #         value=type_of_job_list[1].strip()
+                        #     )
 
+                        # self._put_description_field_or_none(
+                        #     job_id=job_num,
+                        #     key="job_type",
+                        #     value=None
+                        # )
+
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="min_payment",
+                            value=None
+                        )
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="max_payment",
+                            value=None
+                        )
+
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="employment_percent",
+                            value=None
+                        )
+
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="job_level",
+                            value=None
+                        )
+
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="job_Salary_type_level",
+                            value=type_of_job_list
+                        )
+
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="min_max_payment_currency",
+                            value=None
+                        )
+
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="payment_period",
+                            value=None
+                        )
+
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="company_industry",
+                            value=None
+                        )
+
+
+                        for t in type_of_job_list:
+                            if len(list(re.findall('\d', t)))>0:
+
+                                self._put_description_field_or_none(
+                                    job_id=job_num,
+                                    key="min_max_payment",
+                                    value=t
+                                )
+
+                                if len((t.split(' ')[0]).split('/'))>0:
+                                    self._put_description_field_or_none(
+                                        job_id=job_num,
+                                        key="payment_period",
+                                        value=(t.split(' ')[0]).split('/')[1]
+                                    )
+
+
+                                # pos_currency = t[0]
+                                pos_currency = re.findall('[^\d]*',t)
+                                if pos_currency[0]:
+                                    self._put_description_field_or_none(
+                                        job_id=job_num,
+                                        key="min_max_payment_currency",
+                                        value=pos_currency[0].strip()
+                                    )
+                                else:
+                                    self._put_description_field_or_none(
+                                        job_id=job_num,
+                                        key="min_max_payment_currency",
+                                        value=None
+                                    )
+
+
+                                t_no_coma = re.sub(',','',t)
+                                min_max_payment = list(re.findall('\d+',t_no_coma))
+                                if len(min_max_payment)==2:
+                                    self._put_description_field_or_none(
+                                        job_id=job_num,
+                                        key="min_payment",
+                                        value=min_max_payment[0]
+                                    )
+                                    self._put_description_field_or_none(
+                                        job_id=job_num,
+                                        key="max_payment",
+                                        value=min_max_payment[1]
+                                    )
+                                elif len(min_max_payment)==1:
+                                    self._put_description_field_or_none(
+                                        job_id=job_num,
+                                        key="max_payment",
+                                        value=min_max_payment[0]
+                                    )
+
+                            elif len(list(re.findall('time', t)))>0:
+                                self._put_description_field_or_none(
+                                    job_id=job_num,
+                                    key="employment_percent",
+                                    value=t.strip()
+                                )
+                            else :
+                                t = t.replace("level","")
+                                self._put_description_field_or_none(
+                                    job_id=job_num,
+                                    key="job_level",
+                                    value=t.strip()
+                                )
 
 
                         type_of_company_list = short_include["jobInsightsV2"][1]['insightViewModel']['text']['text'].split("·")
-                        if len(type_of_company_list)>0:
-                            self._put_description_field_or_none(
-                                job_id=job_num,
-                                key="company_size_min_max",
-                                value=re.findall('\d+',re.sub(',', '', type_of_company_list[0].strip()))
-                            )
+                        company_size_list = re.findall('\d+',re.sub(',', '', type_of_company_list[0].strip()))
+
+                        if len(company_size_list)>0:
+                            if len(company_size_list)==1:
+                                self._put_description_field_or_none(
+                                    job_id=job_num,
+                                    key="company_size_min",
+                                    value=None
+                                )
+                                self._put_description_field_or_none(
+                                    job_id=job_num,
+                                    key="company_size_max",
+                                    value=company_size_list[0].strip()
+                                )
+                            else:
+                                self._put_description_field_or_none(
+                                    job_id=job_num,
+                                    key="company_size_min",
+                                    value=company_size_list[0].strip()
+                                )
+                                self._put_description_field_or_none(
+                                    job_id=job_num,
+                                    key="company_size_max",
+                                    value=company_size_list[1].strip()
+                                )
 
                         if len(type_of_company_list) > 1:
                             self._put_description_field_or_none(
@@ -134,8 +318,6 @@ class LinkedInJobsParser():
                                 key="company_industry",
                                 value=type_of_company_list[1].strip()
                             )
-
-                        # self._jobs_obj["job_title"] = short_include["jobPostingTitle"]
 
                         self._put_description_field_or_none(
                             job_id = job_num,
@@ -177,6 +359,7 @@ class LinkedInJobsParser():
                         key="logo_100_px",
                         value=logo_root_url + short_include['logo']['vectorImage']['artifacts'][1][
                         'fileIdentifyingUrlPathSegment']
+
                     )
                     self._put_description_field_or_none(
                         job_id=job_num,
@@ -191,10 +374,23 @@ class LinkedInJobsParser():
                         'fileIdentifyingUrlPathSegment']
                     )
                 except Exception as e:
-                    pass
-                    # print(e)
+                    if len(job_num) > 4:
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="logo_100_px",
+                            value=None
 
-                    # print(f"&&&")
+                        )
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="logo_200_px",
+                            value= None
+                        )
+                        self._put_description_field_or_none(
+                            job_id=job_num,
+                            key="logo_400_px",
+                            value= None
+                        )
 
         return self._jobs_id_dict
         # pprint(self._jobs_id_dict)
