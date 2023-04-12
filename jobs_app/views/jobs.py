@@ -22,6 +22,9 @@ class JobsPermissions(BasePermission):
         if request.method in ['GET']:
             return True
 
+        if request.method in ['POST'] and request.user and request.user.is_staff:
+            return True
+
         return False
 
     def has_object_permission(self, request, view, obj):
@@ -57,7 +60,7 @@ class LargeResultsSetPagination(PageNumberPagination):
     max_page_size = 5
 
 class JobsViewSet(
-                    mixins.CreateModelMixin,
+                   mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin,
                    # mixins.UpdateModelMixin,
                    # mixins.DestroyModelMixin,
@@ -66,8 +69,8 @@ class JobsViewSet(
 
     queryset = Job.objects.all()
     # serializer_class = JobsSerializer
-    permission_classes = [JobsPermissions]
-    permission_classes = [IsAuthenticatedOrReadOnly ]
+
+    permission_classes = [IsAuthenticatedOrReadOnly, JobsPermissions ]
 
 
 
@@ -86,18 +89,18 @@ class JobsViewSet(
     def get_queryset(self):
         super().get_queryset()
 
+
+    # def create(self, request, *args, **kwargs):
+    #     if
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
 
         user_id = self.request.user.id
         job_id = instance.id
 
-        favorite_last = FavoriteJobs.objects.filter(job=job_id, user=user_id).last()
-
-        if favorite_last:
-            favorite = favorite_last.status
-        else:
-            favorite = False
+        favorite_qs = FavoriteJobs.objects.filter(job=job_id, user=user_id)
+        favorite = len(favorite_qs)>0
 
         serializer = self.get_serializer(instance)
 
@@ -105,6 +108,46 @@ class JobsViewSet(
         mydata['favorite'] = favorite
 
         return Response(mydata)
+
+    @staticmethod
+    def add_favorite_field( serialized_data, users_favorite_jobs):
+        mydata = copy.deepcopy(serialized_data)
+        for i in range(len(mydata)):
+            mydata[i]['favorite'] = mydata[i]['id'] in users_favorite_jobs
+
+        return mydata
+
+    def list(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            return super().list(self, request, *args, **kwargs)
+        else:
+            user_id = self.request.user.id
+            favorite_qs = FavoriteJobs.objects.filter(user=user_id)
+            users_favorite_jobs=[]
+            for fav in favorite_qs:
+                users_favorite_jobs.append(fav.job_id)
+
+            queryset = self.filter_queryset(self.get_queryset())
+
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+
+                # mydata = copy.deepcopy(serializer.data)
+                # for i in range(len(mydata)):
+                #     mydata[i]['favorite'] = mydata[i]['id'] in users_favorite_jobs
+
+                mydata = self.add_favorite_field(serialized_data=serializer.data , users_favorite_jobs = users_favorite_jobs)
+
+                return self.get_paginated_response(mydata)
+
+            serializer = self.get_serializer(queryset, many=True)
+            mydata = self.add_favorite_field(serialized_data=serializer.data, users_favorite_jobs=users_favorite_jobs)
+            # return Response(serializer.data)
+            return Response(mydata)
+
+
+
 
 
 

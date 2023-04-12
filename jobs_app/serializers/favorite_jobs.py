@@ -15,7 +15,7 @@ class FavoriteJobsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FavoriteJobs
-        depth = 1
+        depth = 2
         # fields = '__all__'
         exclude = ('user',)
 
