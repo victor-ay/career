@@ -1,0 +1,22 @@
+{
+  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
+  "csrf-token": "ajax:0537167339053586530",
+  "cookie": "bcookie=\"v=2&cde0e161-4001-44ad-82b2-1af9f7d836df\"; bscookie=\"v=1&202208011026584b37e002-5f87-40e6-88cb-6729cb41e01dAQFq9QzEQd5OlXJzjtThIDDCR3sRZjKK\"; G_ENABLED_IDPS=google; li_sugr=b5f26e27-1b0c-4cd9-bf6a-302101d477dd; aam_uuid=30813412343901909360838655831192849190; _gcl_au=1.1.1994830631.1679505662; li_at=AQEDAUIcG4MFR1R-AAABhwpXvHoAAAGHLmRAelYAnx88oCBrMnUJ4GEMkjHykHaVdgDPk2FhuZPcoegXpMQ5-sgr9XMhKxd3RKc0e3_2Hc8mUpOYqFZCGh1Pe8f0W4sasWW4RjaWn1IrM1GfHs31kv0a; liap=true; timezone=Europe/London; li_theme=light; li_theme_set=app; AnalyticsSyncHistory=AQKX7bkftSnFygAAAYcKV8WIhZsQKeaJ6YoUgR2NKFIHokFaS6z1OVuN3a8bBBKVU7Y7xZZyjPFOcrPkCMlRQg; _guid=3b1de2fd-9413-4d4c-bbce-dd75d7123c35; lms_ads=AQFpIm4zwpXlZwAAAYcKV8aF8gjxX1I5TYN0LLxV8ySjRbFp386btJcywDX-7c94xj4Dav7YpMizP7ZE4N2SjbKf3v3osNlu; lms_analytics=AQFpIm4zwpXlZwAAAYcKV8aF8gjxX1I5TYN0LLxV8ySjRbFp386btJcywDX-7c94xj4Dav7YpMizP7ZE4N2SjbKf3v3osNlu; ln_or=eyI0MzQ2MTM3IjoiZCJ9; lang=v=2&lang=en-us; JSESSIONID=ajax:0537167339053586530; UserMatchHistory=AQJh-PgZwnvjngAAAYcOeo0ZoeaTxCiAlZc1KtN6a4t5snvFKl9Oe16cyAYepgtOnMy-B0Pd70-8IcuC0j7exoxKHQovAONK8_phavwamEXdWr4kKd3Qa3DxN8fDZPMLGRcZUChIZK0W_pEhq-LJH5ndYKTRLGyZOuMB1MPEyl3L5xohUbI7ozTcpQOuiN-fzsQYte4ltnqwO_l25Nv1e_z6CDELJ0emSI2b_kWylJmiDYSBJvffXnP0iTlJH94b6KHGQceKpgKabngiQFeIZWH8cb654Qb6znkNe7s; lidc=\"b=OB07:s=O:r=O:a=O:p=O:g=3846:u=3:x=1:i=1679575125:t=1679661523:v=2:sig=AQF9vZxHJkqpl3OschZ7vmyUIQg2mgjH\"; AMCVS_14215E3D5995C57C0A495C55%40AdobeOrg=1; AMCV_14215E3D5995C57C0A495C55%40AdobeOrg=-637568504%7CMCIDTS%7C19439%7CMCMID%7C30298502262018356670823224371471300845%7CMCAAMLH-1680179926%7C6%7CMCAAMB-1680179926%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1679582326s%7CNONE%7CvVersion%7C5.1.1%7CMCCIDH%7C-596645309",
+  "authority": "www.linkedin.com",
+  "accept": "application/vnd.linkedin.normalized+json+2.1",
+  "accept-encoding": "gzip, deflate, br",
+  "accept-language": "en-US,en;q=0.9",
+  "referer": "https://www.linkedin.com/jobs/search/",
+  "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"102\", \"Google Chrome\";v=\"102\"",
+  "sec-ch-ua-mobile": "?0",
+  "sec-ch-ua-platform": "macOS",
+  "sec-fetch-dest": "empty",
+  "sec-fetch-mode": "cors",
+  "sec-fetch-site": "same-origin",
+  "x-kl-ajax-request": "Ajax_Request",
+  "x-li-deco-include-micro-schema": "true",
+  "x-li-lang": "en_US",
+  "x-li-page-instance": "urn:li:page:d_flagship3_search_srp_jobs;ibaBHHcHRpeIb3CYFX3KPw==",
+  "x-li-track": "{\"clientVersion\":\"1.12.1400\",\"mpVersion\":\"1.12.1400\",\"osName\":\"web\",\"timezoneOffset\":1,\"timezone\":\"Europe/London\",\"deviceFormFactor\":\"DESKTOP\",\"mpName\":\"voyager-web\",\"displayDensity\":3,\"displayWidth\":1920,\"displayHeight\":1080}",
+  "x-restli-protocol-version": "2.0.0"
+}

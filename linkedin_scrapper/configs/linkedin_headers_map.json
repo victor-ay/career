@@ -1,0 +1,14 @@
+
+{
+  "https://www.linkedin.com/in/dan-costner-1884a0206/" :
+    {
+      "name": "Dan Costner",
+      "headers_json" : "linkedin_scrapper/configs/headers_files/linkedin_headers_0.json"
+    },
+
+    "https://www.linkedin.com/in/avivit-shani-54354626b/" :
+    {
+    "name": "Avivit Shani",
+    "headers_json" : "linkedin_scrapper/configs/headers_files/linkedin_headers_1.json"
+  }
+}
