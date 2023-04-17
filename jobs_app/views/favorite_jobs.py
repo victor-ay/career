@@ -17,6 +17,7 @@ class FavoriteDeletePermission(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method == 'DELETE':
             return request.user.id == obj.user_id
+        return True
 
 class FavoriteJobsViewSet(
                     mixins.CreateModelMixin,
@@ -57,12 +58,17 @@ class FavoriteJobsViewSet(
         user_id = self.request.user.id
         job_id =self.request.data['job']
         qs = FavoriteJobs.objects.filter(job=job_id,user=user_id)
+        # qs = FavoriteJobs.objects.get(job=job_id, user=user_id)
 
         if len(qs)>0:
-            raise ValidationError(f"Not Unique! The job #<{job_id}> already in favorites of user <{self.request.user.username}>")
-        serializer.validated_data['user'] = self.request.user
+            qs = FavoriteJobs.objects.get(job=job_id, user=user_id)
+            qs.delete()
+            # raise ValidationError(f"Not Unique! The job #<{job_id}> already in favorites of user <{self.request.user.username}>")
+        else:
 
-        serializer.save()
+            serializer.validated_data['user'] = self.request.user
+
+            serializer.save()
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

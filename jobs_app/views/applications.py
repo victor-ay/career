@@ -24,7 +24,7 @@ from jobs_app.serializers.applications import ApplicationsSerializer, Applicatio
 class ApplicationsViewSet(
                     mixins.CreateModelMixin,
                    mixins.RetrieveModelMixin,
-                   mixins.UpdateModelMixin,
+                   # mixins.UpdateModelMixin,
                    mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
                    GenericViewSet
@@ -36,7 +36,7 @@ class ApplicationsViewSet(
     def get_queryset(self):
         super().get_queryset()
         if not self.request.user.is_staff:
-            qs = self.queryset.filter(user=self.request.user.id)
+            qs = self.queryset.filter(user=self.request.user.id, is_deleted=False)
             return qs
         return self.queryset
 

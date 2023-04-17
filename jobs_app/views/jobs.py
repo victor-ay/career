@@ -11,7 +11,7 @@ from rest_framework.permissions import BasePermission, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from jobs_app.models import Job, FavoriteJobs
+from jobs_app.models import Job, FavoriteJobs, Application
 from jobs_app.serializers.jobs import JobsStaffSerializer, \
     JobsSimpleSerializer
 
@@ -70,7 +70,8 @@ class JobsViewSet(
     queryset = Job.objects.all()
     # serializer_class = JobsSerializer
 
-    permission_classes = [IsAuthenticatedOrReadOnly, JobsPermissions ]
+    # permission_classes = [IsAuthenticatedOrReadOnly, JobsPermissions ]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 
@@ -102,18 +103,32 @@ class JobsViewSet(
         favorite_qs = FavoriteJobs.objects.filter(job=job_id, user=user_id)
         favorite = len(favorite_qs)>0
 
+        applied_qs = Application.objects.filter(job=job_id, user=user_id)
+        applied = len(favorite_qs)>0
+
         serializer = self.get_serializer(instance)
 
         mydata = copy.deepcopy(serializer.data)
         mydata['favorite'] = favorite
+        mydata['applied'] = applied
+
 
         return Response(mydata)
 
     @staticmethod
-    def add_favorite_field( serialized_data, users_favorite_jobs):
+    def add_favorite_and_applied_field( serialized_data, users_favorite_jobs, users_applied_jobs):
         mydata = copy.deepcopy(serialized_data)
         for i in range(len(mydata)):
             mydata[i]['favorite'] = mydata[i]['id'] in users_favorite_jobs
+            mydata[i]['applied'] = mydata[i]['id'] in users_applied_jobs
+
+        return mydata
+
+    @staticmethod
+    def add_applied_field( serialized_data, users_applied_jobs):
+        mydata = copy.deepcopy(serialized_data)
+        for i in range(len(mydata)):
+            mydata[i]['applied'] = mydata[i]['id'] in users_applied_jobs
 
         return mydata
 
@@ -127,6 +142,11 @@ class JobsViewSet(
             for fav in favorite_qs:
                 users_favorite_jobs.append(fav.job_id)
 
+            applicants_qs = Application.objects.filter(user=user_id)
+            users_applied_jobs=[]
+            for appl in applicants_qs:
+                users_applied_jobs.append(appl.job_id)
+
             queryset = self.filter_queryset(self.get_queryset())
 
             page = self.paginate_queryset(queryset)
@@ -137,12 +157,16 @@ class JobsViewSet(
                 # for i in range(len(mydata)):
                 #     mydata[i]['favorite'] = mydata[i]['id'] in users_favorite_jobs
 
-                mydata = self.add_favorite_field(serialized_data=serializer.data , users_favorite_jobs = users_favorite_jobs)
+                mydata = self.add_favorite_and_applied_field(serialized_data=serializer.data ,
+                                                             users_favorite_jobs = users_favorite_jobs,
+                                                             users_applied_jobs = users_applied_jobs)
 
                 return self.get_paginated_response(mydata)
 
             serializer = self.get_serializer(queryset, many=True)
-            mydata = self.add_favorite_field(serialized_data=serializer.data, users_favorite_jobs=users_favorite_jobs)
+            mydata = self.add_favorite_and_applied_field(serialized_data=serializer.data,
+                                                         users_favorite_jobs=users_favorite_jobs,
+                                                         users_applied_jobs = users_applied_jobs)
             # return Response(serializer.data)
             return Response(mydata)
 

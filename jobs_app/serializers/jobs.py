@@ -10,6 +10,7 @@ from jobs_app.models import Job
 #         fields = '__all__'
 #         depth = 1
 #
+# from jobs_app.serializers.applications import ApplicationPostSerializer
 from jobs_app.serializers.auth import UserSerializer
 from jobs_app.serializers.companies import CompaniesSerializer
 from jobs_app.serializers.favorite_jobs import FavoriteJobsStaffSerializer, FavoriteJobsSerializer
@@ -34,12 +35,14 @@ class JobsStaffSerializer(serializers.ModelSerializer):
 
 class JobsSimpleSerializer(serializers.ModelSerializer):
     company = CompaniesSerializer()
+    # applied = ApplicationPostSerializer()
 
     class Meta:
         model = Job
         # fields = '__all__'
         depth = 1
         exclude = ['favorited_by_user', 'created_at', 'applicants', 'recruiter', 'closed_at']
+        # exclude = ['favorited_by_user', 'created_at', 'recruiter', 'closed_at']
         extra_kwargs = {
             "source":{"write_only":True},
             "source_job_id": {"write_only": True},
