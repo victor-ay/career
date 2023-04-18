@@ -98,7 +98,7 @@ with open(career_db_key_link, 'r') as fh:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'career-db',
+        'NAME': 'career',
         'USER': str(credentials['USER']),
         'PASSWORD': str(credentials['PASSWORD']),
         'HOST': 'career-db.cvnbyhq6voum.us-east-1.rds.amazonaws.com',
