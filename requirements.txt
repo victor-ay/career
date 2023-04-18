@@ -7,3 +7,4 @@ django-cors-headers
 django-countries
 django-money
 django-filter
+gunicorn
