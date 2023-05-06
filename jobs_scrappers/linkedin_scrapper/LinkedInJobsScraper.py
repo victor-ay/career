@@ -1,17 +1,24 @@
 import datetime
 import json
-import os.path
+import os
 import random
 import re
 import time
-from math import ceil
 from pprint import pprint
 
-import http.cookiejar, urllib.request
+import urllib.request
 
 import requests
 
-from linkedin_scrapper.LinkedInHeaderCoockieHandler import LinkedInHeaderHandler
+import django
+
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'career_proj.settings'
+django.setup()
+
+from jobs_app.models import Job
+from jobs_scrappers.linkedin_scrapper.LinkedInHeaderCoockieHandler import LinkedInHeaderHandler
+from jobs_scrappers.linkedin_scrapper.LinkedInHeaderQueue import LinkedInHeaderQueue
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
@@ -78,11 +85,6 @@ cookie_out ='bcookie="v=2&f73a89e2-296c-470c-8724-91d19e695678"; bscookie="v=1&2
 
 pgUrl_base = "https://www.linkedin.com/voyager/api/search/hits?decorationId=com.linkedin.voyager.deco.jserp.WebJobSearchHitWithSalary-25&count=25&filters=List(locationFallback-%3EIsrael,geoUrn-%3Eurn%3Ali%3Afs_geo%3A101620260,resultType-%3EJOBS)&keywords=Junior%20Developer&origin=JOB_SEARCH_PAGE_OTHER_ENTRY&q=jserpFilters&queryContext=List(primaryHitType-%3EJOBS,spellCorrectionEnabled-%3Etrue)&start=100&topNRequestedFlavors=List(HIDDEN_GEM,IN_NETWORK,SCHOOL_RECRUIT,COMPANY_RECRUIT,SALARY,JOB_SEEKER_QUALIFIED,PRE_SCREENING_QUESTIONS,SKILL_ASSESSMENTS,ACTIVELY_HIRING_COMPANY,TOP_APPLICANT)"
 
-# d= requests.get
-# data = requests.get(pgUrl_base, headers=headers,cookies=cookie_out)
-# print(data.status_code)
-# pprint(data.cookies)
-# pprint(data.json())
 
 # detailed urls
 url = "https://www.linkedin.com/voyager/api/graphql?includeWebMetadata=true&variables=" \
@@ -130,9 +132,11 @@ class LinkedInJobsScraper():
 
     def __init__(self, keywords: [str],
                  location:str,
+                 min_sec_sleep_between_requests: int,
                  max_sec_sleep_between_requests: int,
-                 linkedin_header_file : str,
+                 # linkedin_header_file : str,
                  timePostedRange = 'week', # => When job was posted. "week" -> in the last week. options are: day, week, month
+                 worker_map_file = "configs/linkedin_headers_map.json"
                  ):
 
         # each keyword => {'keyword' : {
@@ -142,6 +146,14 @@ class LinkedInJobsScraper():
         #                               }
         #                  }
 
+        self._headerQ = LinkedInHeaderQueue(header_map_file=worker_map_file)
+
+        self._linkedin_header_file = self._headerQ.get_next_header_file()
+        self._headerHandler = LinkedInHeaderHandler(
+            header_file_name=self._linkedin_header_file)
+        self._headers = self._headerHandler.get_headers()
+
+
         self._keywords = keywords
         self._keywords_ids_info = {} # Dictionary according to keywords.
         for keyword in keywords:
@@ -149,13 +161,9 @@ class LinkedInJobsScraper():
             self._keywords_ids_info[keyword]['start'] = None
             self._keywords_ids_info[keyword]['tot_jobs_num'] = None
             self._keywords_ids_info[keyword]['initial_link'] = None
-            self._linkedin_header_file = linkedin_header_file
 
-            # self._headerHandler = LinkedInHeaderHandler(header_file_name='configs/headers_files/linkedin_headers_0.json')
-            self._headerHandler = LinkedInHeaderHandler(
-                header_file_name=self._linkedin_header_file)
-            self._headers = self._headerHandler.get_headers()
-            self._max_sec_sleep_between_requests = max_sec_sleep_between_requests
+        self._max_sec_sleep_between_requests = max_sec_sleep_between_requests
+        self._min_sec_sleep_between_requests = min_sec_sleep_between_requests
 
         self._tot_jobs_num = None
 
@@ -199,6 +207,7 @@ class LinkedInJobsScraper():
                          # '&start=25'
 
 
+
     def get_my_class_status(self):
         status = {}
         status['self._keywords'] = self._keywords
@@ -215,46 +224,54 @@ class LinkedInJobsScraper():
 
         return status
 
-    def get_headerHandler(self):
+    def _get_headerHandler(self):
         return  self._headerHandler
-
-    @staticmethod
-    def _save_scrapp_in_the_file(data: json, file_name_start:str):
-        '''
-        Dumps data into file. File name composed as follows:
-            - {file_name_start} + {DD-MM-YY} . json
-        :param data:
-        :return:
-        '''
-        datenow = datetime.datetime.now().date().strftime('%d-%m-%Y')
-        timenow = datetime.datetime.now().strftime('%d-%m-%Y_%H:%M:%S')
-        file_name = 'scraped_files/' + file_name_start + '-' + datenow + '.json'
-
-        # # Get data from file
-        # if os.path.isfile(file_name):
-        #     with open (file_name, 'r') as fh:
-        #         data_before = json.load(fh)
-        # else:
-        #     data_before = {}
-        #
-        # # Json's key wich is date and time = (27-02-2023_13:52)
-        # data_before[timenow]=data
-        with open (file_name, 'w') as fh:
-            json.dump(data, fh)
 
     def save_jobs_descriptions_to_file(self, file_name_start:str):
         '''
         Dumps data into file. File name composed as follows:
             - {file_name_start} + {DD-MM-YY} . json
+        Dumps into  'scraped_files' folder
         :param data:
         :return:
         '''
-        datenow = datetime.datetime.now().date().strftime('%d-%m-%Y')
+        datenow = datetime.datetime.now().date().strftime('%Y-%m-%d')
         timenow = datetime.datetime.now().strftime('%d-%m-%Y_%H:%M:%S')
         file_name = 'scraped_files/' + file_name_start + '-' + datenow + '.json'
 
         with open (file_name, 'w') as fh:
             json.dump(self._list_of_jobs_description, fh)
+
+    def _save_and_change_headerHandler(self, response):
+        """
+        This method should be used after each request from LinkedIn.
+        This method will change 'persons' == wokers who is going to request data from LinkedIn.
+
+        What it does:
+        Gets 'response' and updates the current 'headers' and 'headerHandler'.
+        Requests the next 'headerHandler' and gets new 'headers'.
+
+        :param response:
+        :return:
+        """
+
+        # updating headers
+        self._headers = self._headerHandler.handle_header_changes_from_response(response)
+
+        # updating headerHandler
+        self._headerHandler.set_headers(self._headers)
+
+        # saving headers back to file
+        self._headerHandler.save_headers()
+
+        # getting the new headers file
+        self._linkedin_header_file = self._headerQ.get_next_header_file()
+
+        # setting the new 'headerHandler'
+        self._headerHandler = LinkedInHeaderHandler(
+            header_file_name=self._linkedin_header_file)
+        # updating current headers
+        self._headers = self._headerHandler.get_headers()
 
     def _get_data_from_scraped_link(self,link_to_scrap:str) -> json:
         """
@@ -262,16 +279,17 @@ class LinkedInJobsScraper():
         :param link_to_scrap:
         :return:
         """
-        # return requests.get(link_to_scrap, headers=headers).json()
 
-        sleep_time = random.randint(1,self._max_sec_sleep_between_requests)
+        sleep_time = random.randint(self._min_sec_sleep_between_requests,self._max_sec_sleep_between_requests)
         # print(f"\t\t\tSleep before scrap: {sleep_time} [sec]\n"
         #       f"\t\t\tScrap url: {link_to_scrap}")
         print(".", end="")
         time.sleep(sleep_time)
+        print(f">>> request.get({link_to_scrap})")
         response = requests.get(link_to_scrap, headers=self._headers)
-        self._headers = self._headerHandler.handle_changes_from_response(response)
-        self._headerHandler.set_headers(self._headers)
+        self._save_and_change_headerHandler(response=response)
+        # self._headers = self._headerHandler.handle_header_changes_from_response(response)
+        # self._headerHandler.set_headers(self._headers)
         if response.status_code < 400:
             return response.json()
         else:
@@ -280,7 +298,7 @@ class LinkedInJobsScraper():
     def _create_link_to_scrap_jobs_ids(self, start_with:int, keywords:str) -> str:
         """
         Creates a link that will return the list with jobs ids.
-        start_with -> start with job number. Usually jumps in 25
+        start_with -> start with job number. Usually jumps in 25 {pagination}
         :return:
         """
         # '&filters=List(' \
@@ -305,11 +323,6 @@ class LinkedInJobsScraper():
 
         return ret_val
 
-    ######### DELETE  ######
-    # def create_scraping_links_per_period(self):
-    #     link_day =
-    ######### DELETE  ######
-    
     def _get_tot_num_of_jobs_per_keyword(self, keyword: str, data: json) -> int:
         
         # Get number of jobs id from the link if it's for the first time
@@ -328,14 +341,14 @@ class LinkedInJobsScraper():
 
         return self._keywords_ids_info[keyword]['start']
 
-    def create_all_links_to_scrap_ids_per_keyword(self):
+    def _create_all_links_to_scrap_ids_per_keyword(self):
         """
         Creates a link and saves to "self._keywords_ids_info" according to keyword
         Creates all possible links with jobs ids inside and append to "self._jobs_id_link_list"
         :return:
         """
 
-        print(f"\n>>> Creating list of list of links with ids according keywords")
+        print(f"\n>>> Creating list  of links with ids according keywords")
         for keyword in self._keywords:
 
             # Create initial link to retrieve tot_jobs_num
@@ -378,7 +391,6 @@ class LinkedInJobsScraper():
 
         # saving scraped file in the file
         # Need a lock for multithreading
-        # self._save_scrapp_in_the_file(data=data,file_name_start='job_ids')
 
         # Get number of jobs ids in this link
         jobs_count = int(data['data']['paging']['count'])
@@ -402,7 +414,7 @@ class LinkedInJobsScraper():
 
         return scraped_ids
 
-    def extract_jobs_ids_from_all_jsons(self):
+    def _extract_jobs_ids_from_all_jsons(self):
         """
         Goes through dictionary of "self._keywords_ids_info" and extracts all Jobs_ids
         :return:
@@ -417,7 +429,7 @@ class LinkedInJobsScraper():
 
     # We have self._jobs_id_list with list of jobs ids to scrapp
 
-    def get_list_of_jobs_id_without_duplications(self):
+    def _get_list_of_jobs_id_without_duplications(self):
         """
         Takes "self._jobs_id_list" and removes duplications
         Updates "self._extracted_jobs_id"
@@ -431,9 +443,9 @@ class LinkedInJobsScraper():
 
         return self._jobs_id_list
 
-    def create_list_links_for_jobs_descriptions(self):
+    def _create_list_links_to_scrap_jobs_descriptions(self, list_of_jobs_ids = None):
         """
-        Creates list of links with request for description for 25 jobs potion.
+        Creates list of links with request for description for 25 jobs positions.
         Returns list of links to be scraped.
         :return:
         """
@@ -445,7 +457,22 @@ class LinkedInJobsScraper():
         pg_end = "))&q=prefetch"
 
 
-        uniq_jobs_ids = self.get_list_of_jobs_id_without_duplications()
+        if list_of_jobs_ids == None:
+            jobs_ids_no_duplicates = self._get_list_of_jobs_id_without_duplications()
+        else:
+            jobs_ids_no_duplicates = list_of_jobs_ids
+
+        # Requesting jobs that might already be in the db
+        qs_values = Job.objects.filter(source_job_id__in=jobs_ids_no_duplicates,
+                                       source__icontains='LinkedIn').values()
+        existing_jobs_in_db = []
+        for job_exist in qs_values:
+            # getting job_ids that exist in db and in the 'jobs_ids_no_duplicates'
+            existing_jobs_in_db.append(int(job_exist['source_job_id']))
+
+        # uniq_jobs_ids :  is filtered jobs_ids from duplicates and filtered that does not exist in database
+        uniq_jobs_ids = set(jobs_ids_no_duplicates).difference(set(existing_jobs_in_db))
+
         jobCount = 1
 
         pg_link = pg_base
@@ -463,7 +490,11 @@ class LinkedInJobsScraper():
 
         return self._links_25_jobs_description
 
-    def get_jobs_description(self):
+    def _scrap_jobs_description(self):
+        """
+        Scrapes job descriptions in batches of 25 from LinkedIn
+        :return:
+        """
         for link_description in self._links_25_jobs_description:
             try:
                 job_description_json = self._get_data_from_scraped_link(link_to_scrap=link_description)
@@ -473,39 +504,39 @@ class LinkedInJobsScraper():
 
         # Need a lock
 
+    def retrieve_jobs_descriptions_from_linkedin(self):
+        """
+        Goes through all procedures: scrapes all jobs data and returns 'self._list_of_jobs_description'
+        This method should be used only once to retrieve jobs descriptions from linkedIn
 
-    def get_jobs_and_save_to_file(self):
-        self.create_all_links_to_scrap_ids_per_keyword()
-        self.extract_jobs_ids_from_all_jsons()
-        self.create_list_links_for_jobs_descriptions()
+        !!!To get a list of already scraped jobs use get_list_of_jobs_description() method
+
+        :return: self._list_of_jobs_description
+        """
+        self._create_all_links_to_scrap_ids_per_keyword()
+        self._extract_jobs_ids_from_all_jsons()
+        self._create_list_links_to_scrap_jobs_descriptions()
 
         print(f"\n>>> Starting to scrap jobs descriptions")
-        self.get_jobs_description()
-        self._headerHandler.save_headers()
+        self._scrap_jobs_description()
 
+        return self._list_of_jobs_description
 
-# lscrapper = LinkedInJobsScraping(['list']).gett_all_jobs_from_link()
+    def retrieve_jobs_descriptions_from_linkedin_with_jobs_list(self,list_of_jobs_ids ):
+        a = self._create_list_links_to_scrap_jobs_descriptions(list_of_jobs_ids=list_of_jobs_ids)
+        print(a)
+        print(f"\n>>> Starting to scrap jobs descriptions")
+        self._scrap_jobs_description()
+        return self._list_of_jobs_description
 
+    def get_list_of_jobs_description(self):
+        return self._list_of_jobs_description
 
-
-# data = requests.get(url, headers=headers)
-# with open ('scrapped25.json', 'w') as fh:
-#     json.dump(data.json(), fh)
 
 if __name__ == '__main__':
 
-    # jobs_title_search = [
-    #     "full stack", "fullstack",
-    #     "backend", "frontend",
-    #     "Software Developer",
-    #     "Software engineer",
-    #     "Junior developer", "Junior software",
-    #     "Junior qa", "software quality assurance",
-    #     "junior devops", "qa", "ios", "android"
-    # ]
-
     jobs_title_search = [
-        "android"
+        "android", "ios"
 
     ]
 
@@ -514,12 +545,12 @@ if __name__ == '__main__':
         jobs_title_search,
         location='israel',
         timePostedRange='day',
-        linkedin_header_file = 'configs/headers_files/linkedin_headers_0.json',
+        # linkedin_header_file ='configs/headers_files/linkedin_headers_0.json',
+        min_sec_sleep_between_requests = 2,
         max_sec_sleep_between_requests = 6)
-    linkedin_job_tasker.get_jobs_and_save_to_file()
+    linkedin_job_tasker.retrieve_jobs_descriptions_from_linkedin()
     linkedin_job_tasker.save_jobs_descriptions_to_file(file_name_start="israel_test_2")
     pprint(linkedin_job_tasker.get_my_class_status())
-
 
 
 

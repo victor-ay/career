@@ -152,9 +152,13 @@ class LinkedInHeaderHandler:
         if len(new_cookies) > 0:
             for cookies_param in self._cookie_dictionary:
                 for section in cookie_section:
-                    param_update = new_cookies.get(section).get('/').get(cookies_param)
-                    if param_update is not None:
-                        self._cookie_dictionary[cookies_param] = param_update.value
+                    try:
+                        param_update = new_cookies.get(section).get('/').get(cookies_param)
+                        if param_update is not None:
+                            self._cookie_dictionary[cookies_param] = param_update.value
+                    except Exception as e:
+                        print(e)
+
 
 
         return self._cookie_dictionary
@@ -207,7 +211,7 @@ class LinkedInHeaderHandler:
         with open(self._header_file_name, 'w') as fh:
             json.dump(self._headers, fh)
 
-    def handle_changes_from_response(self,response):
+    def handle_header_changes_from_response(self, response):
         """
         This method receives the < response > from the scrapping request and updates the headers as follows:
          - Gets response cookies and update the current "self._cookie_dictionary"
@@ -233,7 +237,7 @@ if __name__ == '__main__':
         print(f">> i = {i}")
         response = request_linkedin(url=url, headers=headerHandler.get_headers())
         print(f"\tResponse status = {response.status_code}")
-        headerHandler.handle_changes_from_response(response)
+        headerHandler.handle_header_changes_from_response(response)
 
     headerHandler.save_headers()
 

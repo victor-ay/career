@@ -49,7 +49,7 @@ class LinkedInHeaderQueue:
         return self._worker_keys
 
 if __name__ == '__main__':
-    headerQ = LinkedInHeaderQueue(header_map_file="../linkedin_scrapper/configs/linkedin_headers_map.json")
+    headerQ = LinkedInHeaderQueue(header_map_file="configs/linkedin_headers_map.json")
     # headerQue = LinkedInHeaderQue(header_map_file="../linkedin_scrapper/configs/headers_files/linkedin_headers_0.json")
 
     print(headerQ.get_next_header_file())

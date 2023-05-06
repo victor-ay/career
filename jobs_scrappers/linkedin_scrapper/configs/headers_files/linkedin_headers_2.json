@@ -1,0 +1,23 @@
+{
+  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
+  "csrf-token": "ajax:3169700725199876583",
+  "cookie":
+"",
+  "authority": "www.linkedin.com",
+  "accept": "application/vnd.linkedin.normalized+json+2.1",
+  "accept-encoding": "gzip, deflate, br",
+  "accept-language": "en-US,en;q=0.9",
+  "referer": "https://www.linkedin.com/jobs/search/",
+  "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"102\", \"Google Chrome\";v=\"102\"",
+  "sec-ch-ua-mobile": "?0",
+  "sec-ch-ua-platform": "macOS",
+  "sec-fetch-dest": "empty",
+  "sec-fetch-mode": "cors",
+  "sec-fetch-site": "same-origin",
+  "x-kl-ajax-request": "Ajax_Request",
+  "x-li-deco-include-micro-schema": "true",
+  "x-li-lang": "en_US",
+  "x-li-page-instance": "urn:li:page:d_flagship3_search_srp_jobs;Os4W/XqkQgqv5V6UpShrvQ==",
+  "x-li-track": "{\"clientVersion\":\"1.12.1400\",\"mpVersion\":\"1.12.1400\",\"osName\":\"web\",\"timezoneOffset\":1,\"timezone\":\"Europe/London\",\"deviceFormFactor\":\"DESKTOP\",\"mpName\":\"voyager-web\",\"displayDensity\":3,\"displayWidth\":1920,\"displayHeight\":1080}",
+  "x-restli-protocol-version": "2.0.0"
+}

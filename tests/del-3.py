@@ -2,7 +2,7 @@ import json
 import re
 from pprint import pprint
 
-with open ('../linkedin_scrapper/scraped_files/israel_test_2-13-03-2023.json', 'r') as fh:
+with open ('../jobs_scrappers/linkedin_scrapper/scraped_files/israel_test_2-13-03-2023.json', 'r') as fh:
     all_file = json.load(fh)
 
 # pprint(all_file[1])

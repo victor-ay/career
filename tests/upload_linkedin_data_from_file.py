@@ -1,5 +1,4 @@
 import datetime
-import os
 
 import os
 
@@ -14,14 +13,13 @@ from djmoney.money import Money
 # from rest_framework.authtoken.admin import User
 from django.contrib.auth.models import User
 
-from decimal import Decimal
 import json
-from pprint import pprint
 
 from jobs_app.models import Company, Job
-from linkedin_scrapper.LinkedInJobsParser import LinkedInJobsParser
+from jobs_scrappers.linkedin_scrapper.LinkedInJobsParser import LinkedInJobsParser
 
-with open('../linkedin_scrapper/scraped_files/israel_test_2-13-03-2023.json', 'r') as fh:
+# with open('./jobs_scrappers/linkedin_scrapper/scraped_files/israel_test_2-01-05-2023', 'r') as fh:
+with open('../jobs_scrappers/linkedin_scrapper/scraped_files/israel_test_2-01-05-2023.json', 'r') as fh:
     all_file = json.load(fh)
 
 def none_or_typed_context(obj, cont_type):
@@ -64,7 +62,6 @@ def LinkedInDictToDB_companies(jobsDict: dict):
                            logo_400_px = comp_logo_400_px
                            )
         nCompany.save()
-
 
 def LinkedInDictToDB_jobs(jobsDict: dict):
 
@@ -175,5 +172,5 @@ def LinkedInDictToDB_jobs(jobsDict: dict):
 
 if __name__ == '__main__':
 
-    # transfer_companies = LinkedInDictToDB_companies(jobsDict = all_file[1])
-    transfer_jobs = LinkedInDictToDB_jobs(jobsDict=all_file[1])
+    transfer_companies = LinkedInDictToDB_companies(jobsDict = all_file[0])
+    # transfer_jobs = LinkedInDictToDB_jobs(jobsDict=all_file[0])
