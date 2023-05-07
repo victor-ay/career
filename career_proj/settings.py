@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # 'django_crontab',
+
     'django_countries',
     'djmoney',
 
@@ -172,3 +174,8 @@ SIMPLE_JWT = {
 
 # Countries settings
 COUNTRIES_FIRST = [ 'US', 'IL' ]
+
+# CRONJOBS = [
+#     # ('* * * * *', 'myapp.cron.my_scheduled_job')
+#     ('* * * * *', 'jobs_app.run_scraper')
+# ]
