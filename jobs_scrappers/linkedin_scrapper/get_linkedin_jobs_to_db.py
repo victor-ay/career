@@ -72,4 +72,5 @@ for tasker in linkedin_job_taskers:
         db_transporter.linkedin_dict_to_db_jobs()
 
 
-
+def just_hello():
+    print("Just hello string")

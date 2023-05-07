@@ -192,5 +192,5 @@ COUNTRIES_FIRST = [ 'US', 'IL' ]
 CRONJOBS = [
     # ('* * * * *', 'myapp.cron.my_scheduled_job')
     # ('* * * * *', 'jobs_app.run_scraper.run_linkedin_scrap_process')
-('* * * * *','DJANGO_SETTINGS_MODULE=career_proj.prod_settings',  'jobs_scrappers.linkedin_scrapper.get_linkedin_jobs_to_db','>> /tmp/linkedin_scraper.log 2>&1')
+('* * * * *','DJANGO_SETTINGS_MODULE=career_proj.prod_settings',  'jobs_scrappers.linkedin_scrapper.get_linkedin_jobs_to_db.just_hello','>> /tmp/linkedin_scraper.log 2>&1')
 ]
