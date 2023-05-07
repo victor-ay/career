@@ -175,6 +175,12 @@ SIMPLE_JWT = {
 # Countries settings
 COUNTRIES_FIRST = [ 'US', 'IL' ]
 
+# CRONJOBS = [
+#     # ('* * * * *', 'myapp.cron.my_scheduled_job')
+#     # ('* * * * *', 'jobs_app.run_scraper.run_linkedin_scrap_process')
+# ('* * * * *', 'jobs_app.run_scraper.run_linkedin_scrap_process','>> /tmp/linkedin_scraper.log 2>&1')
+# ]
+
 CRONJOBS = [
     # ('* * * * *', 'myapp.cron.my_scheduled_job')
     # ('* * * * *', 'jobs_app.run_scraper.run_linkedin_scrap_process')
