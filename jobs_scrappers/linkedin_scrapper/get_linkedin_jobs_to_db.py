@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 
 from jobs_scrappers.linkedin_scrapper.LinkedInJobsScraper import LinkedInJobsScraper
 
@@ -73,7 +74,6 @@ for tasker in linkedin_job_taskers:
         db_transporter = LinkedInToDB(dict_25_jobs=tasker_job)
         db_transporter.linkedin_dict_to_db_companies()
         db_transporter.linkedin_dict_to_db_jobs()
-
 
 
 
