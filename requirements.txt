@@ -8,3 +8,4 @@ django-countries
 django-money
 django-filter
 gunicorn
+django-crontab
