@@ -1,6 +1,4 @@
-import datetime
 import json
-import os
 
 # from jobs_scrappers.linkedin_scrapper.LinkedInJobsScraper import LinkedInJobsScraper
 from LinkedInJobsScraper import LinkedInJobsScraper
