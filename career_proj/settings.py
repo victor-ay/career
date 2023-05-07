@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'django_crontab',
+    # 'django_crontab',
 
     'django_countries',
     'djmoney',
@@ -92,9 +92,9 @@ WSGI_APPLICATION = 'career_proj.wsgi.application'
 
 
 # Getting user & password for DATABASE
-# career_db_key_link = "/Users/victoraynbinder/Documents/keys/career_db_key.json"
+career_db_key_link = "/Users/victoraynbinder/Documents/keys/career_db_key.json"
 
-career_db_key_link = "/home/ubuntu/src/keys/career_db_key.json"
+# career_db_key_link = "/home/ubuntu/src/keys/career_db_key.json"
 
 with open(career_db_key_link, 'r') as fh:
     credentials = json.load(fh)
@@ -183,11 +183,11 @@ COUNTRIES_FIRST = [ 'US', 'IL' ]
 # ('* * * * *', 'jobs_app.run_scraper.run_linkedin_scrap_process','>> /tmp/linkedin_scraper.log 2>&1')
 # ]
 
-CRONJOBS = [
-    # ('* * * * *', 'myapp.cron.my_scheduled_job')
-    # ('* * * * *', 'jobs_app.run_scraper.run_linkedin_scrap_process')
-('* * * * *', 'jobs_app.run_scraper.run_linkedin_scrap_process','>> /tmp/linkedin_scraper.log 2>&1')
-]
+# CRONJOBS = [
+#     # ('* * * * *', 'myapp.cron.my_scheduled_job')
+#     # ('* * * * *', 'jobs_app.run_scraper.run_linkedin_scrap_process')
+# ('* * * * *', 'jobs_app.run_scraper.run_linkedin_scrap_process','>> /tmp/linkedin_scraper.log 2>&1')
+# ]
 
 # CRONJOBS = [
 #     # ('* * * * *', 'myapp.cron.my_scheduled_job')
