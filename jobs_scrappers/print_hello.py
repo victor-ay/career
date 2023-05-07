@@ -2,7 +2,7 @@ import json
 
 # from jobs_scrappers.linkedin_scrapper.linkedInToDB import LinkedInToDB
 
-import jobs_scrappers.linkedin_scrapper.linkedInToDB
+from jobs_scrappers import *
 
 print("Hello from (print_hello)")
 with open('linkedin_scrapper/scraped_files/israel_test_4_noTitle-2023-05-03.json', 'r') as fh:
