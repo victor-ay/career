@@ -94,7 +94,7 @@ WSGI_APPLICATION = 'career_proj.wsgi.application'
 # Getting user & password for DATABASE
 # career_db_key_link = "/Users/victoraynbinder/Documents/keys/career_db_key.json"
 
-career_db_key_link = "/src/keys/career_db_key.json"
+career_db_key_link = "/home/ubuntu/src/keys/career_db_key.json"
 
 with open(career_db_key_link, 'r') as fh:
     credentials = json.load(fh)
