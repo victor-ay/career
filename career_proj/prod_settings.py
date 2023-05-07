@@ -185,9 +185,8 @@ COUNTRIES_FIRST = [ 'US', 'IL' ]
 # ]
 
 
-# CRONTAB_DJANGO_SETTINGS_MODULE = 'career_proj.prod_settings.py'
+CRONTAB_DJANGO_SETTINGS_MODULE = 'career_proj.prod_settings.py'
 CRONJOBS = [
-    # ('* * * * *', 'myapp.cron.my_scheduled_job')
     # ('* * * * *', 'jobs_app.run_scraper.run_linkedin_scrap_process')
 ('* * * * *','jobs_app.run_scraper.run_linkedin_scrap_process','>> /tmp/linkedin_scraper.log 2>&1')
 ]
