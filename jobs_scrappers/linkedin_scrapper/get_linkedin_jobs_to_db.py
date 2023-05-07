@@ -5,7 +5,7 @@ from jobs_scrappers.linkedin_scrapper.LinkedInJobsScraper import LinkedInJobsScr
 
 
 # loading data from files to define search
-from jobs_scrappers.linkedin_scrapper.LinkedInToDB import LinkedInToDB
+from jobs_scrappers.linkedin_scrapper.linkedInToDB import LinkedInToDB
 
 with open('../jobs_title_lookup.json', 'r') as fh:
     jobs_title_lookup = json.load(fh)
