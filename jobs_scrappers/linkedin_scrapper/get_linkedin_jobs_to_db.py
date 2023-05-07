@@ -2,11 +2,12 @@ import datetime
 import json
 import os
 
-from jobs_scrappers.linkedin_scrapper.LinkedInJobsScraper import LinkedInJobsScraper
-
+# from jobs_scrappers.linkedin_scrapper.LinkedInJobsScraper import LinkedInJobsScraper
+from LinkedInJobsScraper import LinkedInJobsScraper
 
 # loading data from files to define search
-from jobs_scrappers.linkedin_scrapper.linkedInToDB import LinkedInToDB
+# from jobs_scrappers.linkedin_scrapper.linkedInToDB import LinkedInToDB
+from linkedInToDB import LinkedInToDB
 
 with open('../jobs_title_lookup.json', 'r') as fh:
     jobs_title_lookup = json.load(fh)
