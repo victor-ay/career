@@ -4,7 +4,7 @@ from pprint import pprint
 
 import django
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'career_proj.settings'
+# os.environ['DJANGO_SETTINGS_MODULE'] = 'career_proj.settings'
 django.setup()
 
 from djmoney.money import Money
