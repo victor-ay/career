@@ -133,7 +133,7 @@ class LinkedInToDB():
             if len(qs_company)>0:
                 the_company = qs_company[0]
 
-                the_recruiter = User.objects.get(id=1)
+                the_recruiter = User.objects.get(id=2)
 
                 n_job = Job(
                     company=the_company,
