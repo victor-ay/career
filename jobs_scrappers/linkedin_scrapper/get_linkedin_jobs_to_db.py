@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     # Sleep time in seconds for random sleep time between requests inside each tasker
     min_sec_sleep_between_requests = 12
-    max_sec_sleep_between_requests = 127
+    max_sec_sleep_between_requests = 157
 
     # Scrap jobs that were posted maximum 'day' before
     # All options are: ["day" , "week" , "month"]
