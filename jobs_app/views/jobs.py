@@ -78,6 +78,7 @@ class JobsViewSet(
     filter_backends = [DjangoFilterBackend, SearchFilter ,OrderingFilter]
     filterset_class = JobsFilterSet
     ordering_fields = ['job_type', 'job_level', 'employment_percent','posted_on']
+    ordering = ['-posted_on']
 
     pagination_class = LargeResultsSetPagination
 
