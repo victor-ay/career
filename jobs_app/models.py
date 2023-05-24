@@ -150,6 +150,7 @@ class Job(models.Model):
     job_level = models.TextField(db_column="job_level", max_length=128, null=True, blank=True)
     title = models.TextField(db_column="title", max_length='1024', null=False, blank=False)
     description = models.TextField(db_column="description", max_length='65536', null=True, blank=True)
+    requirements = models.TextField(db_column="requirements", max_length='65536', null=True, blank=True)
     location = models.TextField(db_column="location", max_length='1024', null=True, blank=True)
     application_url = models.TextField(db_column="application_url", max_length='2048', null=True, blank=True)
     posted_on_epoch = models.BigIntegerField(db_column='posted_on_epoch', null=True, blank=True)
@@ -163,7 +164,7 @@ class Job(models.Model):
 
 class Application(models.Model):
     # class ApplicationStatus(models.TextChoices):
-    #     APPLIED = 'Applied'
+    #     SUMBITTED = 'Submitted'
     #     APPROACHED = 'Approached'
     #     INTERVIEW = 'Interview'
     #     REJECTED = 'Rejected'
@@ -176,14 +177,19 @@ class Application(models.Model):
     # cv = models.ForeignKey(CV, on_delete=models.RESTRICT)
     application_date = models.DateTimeField(db_column='application_date',default=datetime.now, blank=True)
     is_deleted = models.BooleanField(db_column='is_deleted', default=False)
+    # status = models.TextField(db_column='status',
+    #                           choices=ApplicationStatus.choices,
+    #                           default=ApplicationStatus.SUMBITTED,
+    #                           null=True, blank=True)
 
 
     class Meta:
         db_table = "applications"
+        ordering = ['-application_date']
 
 class ApplicationFlow(models.Model):
     class ApplicationStatus(models.TextChoices):
-        APPLIED = 'Applied'
+        SUMBITTED = 'Submitted'
         APPROACHED = 'Approached'
         INTERVIEW = 'Interview'
         REJECTED = 'Rejected'
@@ -191,9 +197,10 @@ class ApplicationFlow(models.Model):
         CONTRACT = 'Contract'
         HIRED = 'Hired'
 
-    application = models.ForeignKey(Application, on_delete=models.RESTRICT)
+    application = models.ForeignKey(Application, on_delete=models.RESTRICT, related_name='application_flows')
     status = models.TextField(db_column='status',
                               choices=ApplicationStatus.choices,
+                              default=ApplicationStatus.SUMBITTED,
                               null=True, blank=True)
     created_at = models.DateTimeField(db_column='created_at', default=datetime.now, blank=True)
     updated_at = models.DateTimeField(db_column='updated_at', blank=True, null=True)
@@ -205,6 +212,7 @@ class ApplicationFlow(models.Model):
 
     class Meta:
         db_table = "application_flow"
+        ordering =["-created_at"]
 
 class FavoriteJobs(models.Model):
 
@@ -245,14 +253,30 @@ class HardSkill(models.Model):
         db_table = "hard_skills"
 
 
+class SkillImportance(models.TextChoices):
+    NA = 'n/a'
+    MANDATORY = 'mandatory'
+    PREFERRED = 'preferred'
+    ADVANTAGE = 'advantage'
+
 class HardSkillAbility(models.Model):
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, blank=True, null=True)
-    job = models.ForeignKey(Job, on_delete=models.RESTRICT, blank=True, null=True)
-    skill = models.ForeignKey(HardSkill, on_delete=models.RESTRICT)
+    # class SkillImportance(models.TextChoices):
+    #     NA = 'n/a'
+    #     MANDATORY = 'mandatory'
+    #     PREFERRED = 'preferred'
+    #     ADVANTAGE = 'advantage'
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, blank=True, null=True)
+    skill = models.ForeignKey(HardSkill, on_delete=models.CASCADE)
     years_experience = models.IntegerField(db_column="years_experience",
                                            validators=[MinValueValidator(0), MaxValueValidator(80)],
                                            null=False, blank=False)
+    importance = models.TextField(db_column='importance',
+                                  choices=SkillImportance.choices,
+                                  default=SkillImportance.MANDATORY,
+                                  null=True, blank=True)
 
     class Meta:
         db_table = "hard_skills_abbility"
@@ -267,9 +291,13 @@ class SoftSkill(models.Model):
 
 class SoftSkillAbility(models.Model):
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, blank=True, null=True)
-    job = models.ForeignKey(Job, on_delete=models.RESTRICT, blank=True, null=True)
-    skill = models.ForeignKey(SoftSkill, on_delete=models.RESTRICT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, blank=True, null=True)
+    skill = models.ForeignKey(SoftSkill, on_delete=models.CASCADE)
+    importance = models.TextField(db_column='importance',
+                                  choices=SkillImportance.choices,
+                                  default=SkillImportance.MANDATORY,
+                                  null=True, blank=True)
 
 
     class Meta:
@@ -290,19 +318,41 @@ class LanguageAbility(models.Model):
         MEDIUM = 'Medium'
         OK = 'Ok'
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, blank=True, null=True)
-    job = models.ForeignKey(Job, on_delete=models.RESTRICT, blank=True, null=True)
-    skill = models.ForeignKey(Language, on_delete=models.RESTRICT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, blank=True, null=True)
+    skill = models.ForeignKey(Language, on_delete=models.CASCADE)
 
     read_write_level = models.TextField(db_column='read_write_level',
                                         choices=LanguageLevel.choices,
                                         default=LanguageLevel.GREAT,
-                                        null=False, blank=False)
+                                        null=True, blank=True)
     verbal_level = models.TextField(db_column='verbal_level',
                                         choices=LanguageLevel.choices,
                                         default=LanguageLevel.GREAT,
-                                        null=False)
+                                        null=True, blank=True)
+    importance = models.TextField(db_column='importance',
+                                  choices=SkillImportance.choices,
+                                  default=SkillImportance.MANDATORY,
+                                  null=True, blank=True)
 
 
     class Meta:
-        db_table = "language_abbility"
+        db_table = "language_ability"
+
+class Education(models.Model):
+    field = models.TextField(db_column='field', max_length=256, null=False, blank=False)
+
+    class Meta:
+        db_table = "education"
+
+class EducationAbility(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, blank=True, null=True)
+    degree = models.TextField(db_column='degree', max_length=256, null=False, blank=False)
+    importance = models.TextField(db_column='importance',
+                                  choices=SkillImportance.choices,
+                                  default=SkillImportance.MANDATORY,
+                                  null=True, blank=True)
+
+    class Meta:
+        db_table = "education_ability"

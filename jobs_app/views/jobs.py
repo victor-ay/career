@@ -41,6 +41,7 @@ class TextInFilter(CharFilter, BaseInFilter):
 class JobsFilterSet(FilterSet):
 
     title = django_filters.CharFilter(field_name='title', lookup_expr='icontains')
+    description = django_filters.CharFilter(field_name='description', lookup_expr='icontains')
     location = django_filters.CharFilter(field_name='location', lookup_expr='icontains')
 
     job_level = TextInFilter(field_name='job_level')

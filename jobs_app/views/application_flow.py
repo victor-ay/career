@@ -1,4 +1,5 @@
 import copy
+import datetime
 
 from rest_framework import mixins, status
 from rest_framework.exceptions import ValidationError
@@ -35,7 +36,9 @@ class ApplicationsFlowSet(
                     ):
     queryset = ApplicationFlow.objects.all()
     permission_classes = [IsAuthenticated, ApplicationsFlowPermissions]
-    # serializer_class = ApplicationsSerializer
+    # permission_classes = [IsAuthenticated]
+
+    # serializer_class = ApplicationsFlowSerializer
 
     def get_queryset(self):
         super().get_queryset()
@@ -52,7 +55,6 @@ class ApplicationsFlowSet(
         else:
             return ApplicationFlowPostSerializer
 
-
     def return_null_or_data(self,field):
         if self.request.data.get(field):
             return self.request.data.get(field)
@@ -60,10 +62,6 @@ class ApplicationsFlowSet(
         return None
 
     def validate_application_exists(self):
-        status = self.request.data['status']
-        # notes = self.request.data['notes']
-        # to_do_date = self.request.data['to_do_date']
-        # to_do = self.request.data['to_do']
         notes = self.return_null_or_data('notes')
         to_do_date = self.return_null_or_data('to_do_date')
         to_do = self.return_null_or_data('to_do')
@@ -73,7 +71,7 @@ class ApplicationsFlowSet(
         user_id= self.request.user.id
         application_qs = ApplicationFlow.objects.filter(application__user=user_id,
                                                        application=application,
-                                                       status=status,
+                                                       # status=status,
                                                        notes = notes,
                                                        to_do_date = to_do_date,
                                                        to_do = to_do)
@@ -87,7 +85,7 @@ class ApplicationsFlowSet(
 
     def create(self, request, *args, **kwargs):
 
-        self.validate_application_exists()
+        # self.validate_application_exists()
         my_request_data = copy.deepcopy(request.data)
 
         # ???
@@ -102,4 +100,25 @@ class ApplicationsFlowSet(
     def perform_destroy(self, instance):
         instance.is_deleted= True
         instance.save()
+
+    def perform_update(self, serializer):
+        updated_at = datetime.datetime.now()
+        serializer.validated_data['updated_at'] = updated_at
+        super().perform_update(serializer)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            for i in serializer.data:
+                i.get('application').pop('is_deleted')
+                i.get('application').pop('user')
+                print(i)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 

@@ -18,10 +18,19 @@ class ApplicationsFlowSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ApplicationFlow
+        depth = 1
+        # exclude = ( 'is_deleted',)
+        exclude = ('to_do',)
+
+
+class ApplicationsFlowSerializerSimple(serializers.ModelSerializer):
+    # job = JobsSimpleSerializer()
+
+    class Meta:
+        model = ApplicationFlow
         depth = 0
         # exclude = ('user',)
-        exclude = ( 'is_deleted',)
-
+        exclude = ( 'is_deleted','application')
 
 
 class ApplicationFlowPostSerializer(serializers.ModelSerializer):
@@ -31,3 +40,12 @@ class ApplicationFlowPostSerializer(serializers.ModelSerializer):
         depth = 0
         # fields = '__all__'
         exclude = ('is_deleted',)
+
+class ApplicationsFlowStaffSerializer(serializers.ModelSerializer):
+    # job = JobsSimpleSerializer()
+
+    class Meta:
+        model = ApplicationFlow
+        depth = 1
+        exclude = ('user',)
+        # exclude = ( 'is_deleted',)
